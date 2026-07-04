@@ -1,0 +1,6 @@
+{
+  "name": "Shaitrish Company Tracker",
+  "description": "Enterprise-grade GAAP financial ledger, customer invoice tracker, co-founder equity splitter, and Bangladesh tax compliance utility.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

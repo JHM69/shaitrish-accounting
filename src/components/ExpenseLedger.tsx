@@ -1,31 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Transaction } from '../types';
-import { Plus, CreditCard, Calendar, Filter, FileText, Link, Trash2, Tag, HelpCircle, X } from 'lucide-react';
+import { CreditCard, Calendar, Filter, FileText, Link } from 'lucide-react';
 import InvoicePreviewer from './InvoicePreviewer';
 
 interface ExpenseLedgerProps {
   transactions: Transaction[];
-  onAddTransaction: (tx: Omit<Transaction, 'id' | 'amountBDT'>) => void;
-  onDeleteTransaction: (id: string) => void;
 }
 
-export default function ExpenseLedger({
-  transactions,
-  onAddTransaction,
-  onDeleteTransaction,
-}: ExpenseLedgerProps) {
-  // Dialogue Open State
-  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
-
-  // Form State
-  const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [category, setCategory] = useState<string>('Salary');
-  const [provider, setProvider] = useState<string>('');
-  const [note, setNote] = useState<string>('');
-  const [fileLink, setFileLink] = useState<string>('');
-  const [amount, setAmount] = useState<string>('');
-  const [currency, setCurrency] = useState<'USD' | 'BDT'>('USD');
-
+export default function ExpenseLedger({ transactions }: ExpenseLedgerProps) {
   // Preview State
   const [previewLink, setPreviewLink] = useState<string>('');
   const [previewTitle, setPreviewTitle] = useState<string>('');
@@ -36,34 +18,6 @@ export default function ExpenseLedger({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterCurrency, setFilterCurrency] = useState<string>('all');
   const [filterMonth, setFilterMonth] = useState<string>('all');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const amt = parseFloat(amount);
-    if (isNaN(amt) || amt <= 0 || !provider || !note) return;
-
-    // Is it operating? Usually yes, unless Category is "Transfer" (owner cash)
-    const isOperating = category !== 'Transfer';
-    const accountClass = category === 'Transfer' ? 'Equity' : 'Expense';
-
-    onAddTransaction({
-      date,
-      category,
-      provider,
-      note,
-      fileLink: fileLink || undefined,
-      amount: amt,
-      currency,
-      accountClass,
-      isOperating,
-    });
-
-    // Reset fields
-    setProvider('');
-    setNote('');
-    setAmount('');
-    setFileLink('');
-  };
 
   // Extract unique lists for filters
   const categories = Array.from(new Set(transactions.map((t) => t.category)));
@@ -183,16 +137,6 @@ export default function ExpenseLedger({
         </div>
       </div>
 
-      <div className="flex justify-end gap-2">
-        <button
-          onClick={() => setIsFormOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Record Expense Entry</span>
-        </button>
-      </div>
-
       {/* Ledger Table Panel - Now Full Width */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 flex flex-col space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3 justify-between">
@@ -201,13 +145,6 @@ export default function ExpenseLedger({
             <h3 className="text-base font-bold text-slate-900 font-sans tracking-tight">Ledger Journal Entries</h3>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer border border-indigo-100"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Record Expense</span>
-            </button>
             <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1.5 rounded-md font-mono font-bold">
               PAGE TOTAL BDT ৳{totalFilteredBDT.toLocaleString('en-US', { maximumFractionDigits: 0 })}
             </span>
@@ -225,13 +162,12 @@ export default function ExpenseLedger({
                 <th className="px-4 py-3 text-right">Invoiced Amt</th>
                 <th className="px-4 py-3 text-right">Amount (BDT)</th>
                 <th className="px-4 py-3 text-center">Receipt</th>
-                <th className="px-4 py-3 text-center">Delete</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 text-xs">
               {filteredTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400 font-mono">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400 font-mono">
                     No matching expenditures logged.
                   </td>
                 </tr>
@@ -305,15 +241,6 @@ export default function ExpenseLedger({
                           <span className="text-slate-300 font-mono text-[10px]">-</span>
                         )}
                       </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <button
-                          onClick={() => onDeleteTransaction(tx.id)}
-                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-all cursor-pointer"
-                          title="Delete transaction"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
                     </tr>
                   ))
               )}
@@ -321,169 +248,6 @@ export default function ExpenseLedger({
           </table>
         </div>
       </div>
-
-      {/* Record Expense Dialogue Modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center font-sans p-4" id="expense-record-dialog">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity duration-300"
-            onClick={() => setIsFormOpen(false)}
-          />
-
-          {/* Dialog Panel */}
-          <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col z-10 animate-in fade-in zoom-in-95 duration-200 border border-slate-100">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-2xl">
-              <div className="flex items-center gap-2">
-                <Plus className="w-5 h-5 text-indigo-600 animate-pulse" />
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 font-sans tracking-tight">Record Expense Entry</h3>
-                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">Add an operational or capital transaction</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsFormOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-rose-100"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Form */}
-            <form
-              onSubmit={(e) => {
-                handleSubmit(e);
-                setIsFormOpen(false);
-              }}
-              className="p-6 space-y-4"
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase">Category</label>
-                  <select
-                    className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-2.5 py-1.5 bg-white focus:outline-hidden focus:border-indigo-500"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="Salary">Salary</option>
-                    <option value="Cloud Server">Cloud Server</option>
-                    <option value="Workspace">Workspace</option>
-                    <option value="Domain Registration">Domain Reg</option>
-                    <option value="Domain Renewal">Domain Renewal</option>
-                    <option value="Image Stream">Image Stream</option>
-                    <option value="AI Services">AI Services</option>
-                    <option value="Transfer">Transfer / Equity</option>
-                    <option value="Miscellaneous">Miscellaneous</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase">Provider / Person</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Hetzner, Rasel"
-                    className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-hidden focus:border-indigo-500"
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase">Currency</label>
-                  <select
-                    className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-2.5 py-1.5 bg-white focus:outline-hidden focus:border-indigo-500 font-mono"
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value as any)}
-                  >
-                    <option value="USD">USD ($)</option>
-                    <option value="BDT">BDT (৳)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase">Amount</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="e.g. 19.32"
-                    className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-hidden focus:border-indigo-500 font-mono"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase">Transaction Date</label>
-                  <input
-                    type="date"
-                    className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-3 py-1 bg-white focus:outline-hidden focus:border-indigo-500 font-mono"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase">Reference Link</label>
-                  <input
-                    type="url"
-                    placeholder="Drive invoice URL"
-                    className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-3 py-1 focus:outline-hidden focus:border-indigo-500 font-mono text-xs"
-                    value={fileLink}
-                    onChange={(e) => setFileLink(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 uppercase">Product / Note</label>
-                <input
-                  type="text"
-                  placeholder="e.g. shaitrish.com, Invoice 5527932818"
-                  className="mt-1 block w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-hidden focus:border-indigo-500"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  required
-                />
-              </div>
-
-              {category === 'Transfer' && (
-                <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100/30 flex gap-1.5">
-                  <HelpCircle className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-indigo-700 leading-normal font-sans">
-                    <strong>Accounting Rule:</strong> Labeled as Transfer. This tracks as co-founder equity/funding injection rather than standard operational expense, keeping EBITDA calculations accurate.
-                  </p>
-                </div>
-              )}
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(false)}
-                  className="px-4 py-2 text-slate-500 hover:bg-slate-50 text-xs font-semibold rounded-xl transition-all cursor-pointer border border-slate-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Record Expense Entry</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Inline Google Drive Previewer Drawer */}
       <InvoicePreviewer

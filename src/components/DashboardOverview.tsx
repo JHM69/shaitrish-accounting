@@ -354,6 +354,37 @@ export default function DashboardOverview({
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Billings 6-Month Stacked Bar Chart */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 font-sans tracking-tight">Recent Monthly Billings</h3>
+              <p className="text-[11px] text-slate-500 font-mono">Realized vs pending over the last 6 months</p>
+            </div>
+            <div className="flex gap-3 text-[10px] font-mono font-bold">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Realized</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" /> Pending</span>
+            </div>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={last6MonthsChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                <Tooltip
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff' }}
+                  labelStyle={{ fontWeight: 'bold', fontSize: '11px', fontFamily: 'monospace' }}
+                  itemStyle={{ fontSize: '11px' }}
+                />
+                <Bar dataKey="RealizedIncome" name="Realized Income" stackId="b" fill="#10b981" maxBarSize={50} />
+                <Bar dataKey="PendingInvoices" name="Pending Invoices" stackId="b" fill="#fbbf24" radius={[4, 4, 0, 0]} maxBarSize={50} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
       {/* Products Metrics Row */}

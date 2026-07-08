@@ -631,6 +631,32 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     amountBDT: 2376.36, // 19.32 * 123.0
     accountClass: 'Expense',
     isOperating: true,
+  },
+  {
+    id: 'tx37',
+    date: '2026-07-03',
+    category: 'Cloud Server',
+    provider: 'Hetzner',
+    note: 'Invoice 081000986158',
+    fileLink: 'https://drive.google.com/file/d/1qRdIBysptEsKYkwXYD2vJyg9NO8v4se5/view?usp=drive_link',
+    amount: 46.19,
+    currency: 'USD',
+    amountBDT: 5704.47, // 46.19 * 123.5
+    accountClass: 'Expense',
+    isOperating: true,
+  },
+  {
+    id: 'tx38',
+    date: '2026-07-06',
+    category: 'AI Services',
+    provider: 'Groq',
+    note: 'AI inferencing - Invoice GROQ-TAAS-202607-352230',
+    fileLink: 'https://drive.google.com/file/d/1Bea08DXEMia93t_4FiKIB3KB6-52fm0H/view?usp=drive_link',
+    amount: 1.79,
+    currency: 'USD',
+    amountBDT: 221.07, // 1.79 * 123.5
+    accountClass: 'Expense',
+    isOperating: true,
   }
 ];
 
